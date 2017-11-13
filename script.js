@@ -44,8 +44,7 @@ g.colors = [
     ['Yellow', 'gold'],
     ['Purple', 'Purple'],
     ['Brown', 'sienna'],
-    ['Gray', 'lightgray'],
-    ['Black', 'Black'],
+    ['Gray', 'lightgray']
 ];
 
 
