@@ -33,6 +33,7 @@ g.defaultCircleStyle = {
 // Makes a copy
 g.circleStyle = Object.assign({}, g.defaultCircleStyle);
 g.chosenCountry = 'ALL';
+g.mouseSelection = '';
 
 g.text_columns = ['Country', 'University_Name'];
 
@@ -70,8 +71,8 @@ g.yAxisSvg = svg
 
 
 
-
-d3.csv('TWUR 2016.csv', function(data) {
+var loadCsv = d3.dsv(',', 'iso-8859-1');
+loadCsv('TWUR 2016.csv', function(data) {
     g.data = preprocess(data);
     g.cols = Object.keys(g.data[0]);
 
@@ -292,6 +293,9 @@ function updatePlot(data, xcol, ycol) {
     updateAttr(circles.transition());
     updateAttr(circles.enter()
         .append('circle')
+        .on('click', (d) => mouseHandler(d, 'click'))
+        .on('mouseover', (d) => mouseHandler(d, 'mouseover'))
+        .on('mouseout', (d) => mouseHandler(d, 'mouseout'))
         .style(g.circleStyle));
 
     updateAxes();
@@ -334,26 +338,6 @@ function getLinearDomain(data, col) {
 }
 
 
-function uniqueValuesByFrequency(data, col) {
-    var frequency = {};
-    var selection = data.map((row) => row[col]);
-
-    selection.forEach(function(elem) {
-        frequency[elem] = 0;
-    });
-
-    var uniques = selection.filter(function(elem) {
-        return ++frequency[elem] == 1;
-    });
-
-    var sorted = uniques.sort(function(a, b) {
-        return frequency[b] - frequency[a];
-    });
-
-    return sorted;
-}
-
-
 function translate(w, h) {
     return 'translate(' + [w, h] + ')';
 }
@@ -367,10 +351,39 @@ function getChosenPoints() {
 }
 
 
+function mouseHandler(data, what) {
+    var circle = $(d3.event.target);
+
+    if(+circle.css('opacity') < 0.1) {
+        // Invisible -> ignore
+        return;
+    }
+
+    var univ = data.University_Name;
+    var $sel = $('#txtMouseSelection');
+
+    if(what === 'click') {
+        g.mouseSelection = univ;
+    } else if (what === 'mouseover') {
+        $sel.html(univ);
+    } else if (what === 'mouseout') {
+        $sel.html(g.mouseSelection);
+    }
+}
+
+
 function countryFilter(d) {
-    var aux = g.chosenCountry;
-    var result = (aux === 'ALL' || d.Country === aux);
     var shouldInvert = $('#chkInverted').prop('checked');
+    var option = g.chosenCountry;
+    var result;
+
+    if(option === 'ALL') {
+        result = true;
+    } else if(option === 'MOUSE') {
+        result = (d.University_Name === g.mouseSelection);
+    } else {
+        result = (d.Country === g.chosenCountry);
+    }
 
     return shouldInvert !== result;
 }
