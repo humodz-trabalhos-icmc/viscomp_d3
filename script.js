@@ -182,6 +182,7 @@ d3.csv('TWUR 2016.csv', function(data) {
         if(!xcol || !ycol) {
             $('#message').html('Select both X and Y axes.');
         } else {
+            $('.hidden').removeClass('hidden');
             updatePlot(g.data, xcol, ycol);
         }
     });
@@ -364,5 +365,8 @@ function getChosenPoints() {
 
 function countryFilter(d) {
     var aux = g.chosenCountry;
-    return aux === 'ALL' || d.Country === aux;
+    var result = (aux === 'ALL' || d.Country === aux);
+    var shouldInvert = $('#chkInverted').prop('checked');
+
+    return shouldInvert !== result;
 }

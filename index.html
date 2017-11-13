@@ -12,10 +12,10 @@
 </head>
 <body>
 
-  <div align="center">
+  <div style="text-align: center;">
     <h4>Hugo Moraes Dzin - 8532186</h4>
 
-    <div>
+    <div style="display: inline-block; text-align: left;">
       <div>
         Width: <input id="txtCanvasWidth" type="text" size="8">
         Height: <input id="txtCanvasHeight" type="text" size="8">
@@ -26,16 +26,21 @@
         <select class="selAxis" id="selY">
           <option value="" disabled selected>Y Axis</option>
         </select>
-        <input type="button" id="btnOk" value="OK">
+        <input type="button" id="btnOk" value="Update Plot">
         <span id="message"></span>
         <br>
       </div>
 
-      <div>
+      <div class="hidden">
+        <input type="checkbox" id="chkInverted">
+        <label for="chkInverted">Invert selection</label>
+
         <select id="selCountry">
           <option value="ALL">SELECT ALL</option>
         </select>
+      </div>
 
+      <div class="hidden">
         Color:
         <select id="selColor"></select>
 

@@ -8,8 +8,8 @@ h4 {
     padding: 0;
 }
 
-svg {
-    /* background-color: white; */
+.hidden {
+    display: none;
 }
 
 option[disabled] {
