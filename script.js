@@ -70,7 +70,7 @@ d3.csv('TWUR 2016.csv', function(data) {
         var ycol = $('select[name="y-axis"]').val();
 
         if(!xcol || !ycol) {
-            alert('Selecione ambos eixos');
+            alert('Please choose both axes.');
         } else {
             doStuff(g.data, xcol, ycol);
         }
@@ -92,7 +92,10 @@ function preprocess(data) {
                     row[key] = +value;
                 } else {
                     // X-Y range -> take mean
-                    row[key] = ((+value.slice(0, i)) + (+value.slice(i + 1))) / 2;
+                    var low = +value.slice(0, i);
+                    var hight = +value.slice(i + 1);
+
+                    row[key] = (low + high) / 2;
                 }
             } else if(g.text_columns.indexOf(key) === -1) {
                 // Convert only numeric columns
