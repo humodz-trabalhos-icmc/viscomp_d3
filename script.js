@@ -282,10 +282,12 @@ function updatePlot(data, xcol, ycol) {
         .selectAll('circle')
         .data(filtered_data, (row) => row.id);
 
-    circles.exit().remove();
+    circles.exit()
+        .style('display', 'none');
 
     function updateAttr(selection) {
         selection
+            .style('display', '')
             .attr('cx', (row, index) => xScale(row[xcol]))
             .attr('cy', (row, index) => yScale(row[ycol]));
     }
@@ -365,9 +367,13 @@ function mouseHandler(data, what) {
     if(what === 'click') {
         g.mouseSelection = univ;
     } else if (what === 'mouseover') {
-        $sel.html(univ);
+        $sel.html('Mouse Over: ' + univ);
     } else if (what === 'mouseout') {
-        $sel.html(g.mouseSelection);
+        if(g.mouseSelection !== '') {
+            $sel.html('Selected: ' + g.mouseSelection);
+        } else {
+            $sel.html('');
+        }
     }
 }
 
