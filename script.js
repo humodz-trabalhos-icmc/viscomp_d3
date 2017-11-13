@@ -38,8 +38,8 @@ g.text_columns = ['Country', 'University_Name'];
 
 g.colors = [
     ['Blue', 'steelblue'],
-    ['Red', 'Red',],
-    ['Green', 'Green'],
+    ['Red', 'orangered',],
+    ['Green', 'lime'],
     ['Yellow', 'gold'],
     ['Purple', 'Purple'],
     ['Brown', 'sienna'],
@@ -84,6 +84,8 @@ d3.csv('TWUR 2016.csv', function(data) {
 
     var $rngOpacity = $('#rngOpacity');
     var $rngRadius = $('#rngRadius');
+
+    var $message = $('#message');
 
     // List unique countries alphabetically
     g.countries = Array.from(new Set(
@@ -171,7 +173,7 @@ d3.csv('TWUR 2016.csv', function(data) {
         canvas.height = +$txtCanvasHeight.val();
 
         if(isNaN(canvas.width + canvas.height)) {
-            $('#message').html('Invalid dimensions.');
+            $message.html('Invalid dimensions.');
             return;
         }
 
@@ -180,7 +182,7 @@ d3.csv('TWUR 2016.csv', function(data) {
             .attr('height', canvas.height);
 
         if(!xcol || !ycol) {
-            $('#message').html('Select both X and Y axes.');
+            $message.html('Select both X and Y axes.');
         } else {
             $('.hidden').removeClass('hidden');
             updatePlot(g.data, xcol, ycol);
@@ -193,6 +195,8 @@ d3.csv('TWUR 2016.csv', function(data) {
         getChosenPoints()
             .style(g.circleStyle);
     });
+
+    $message.html('Please select X and Y axes.');
 });
 
 
