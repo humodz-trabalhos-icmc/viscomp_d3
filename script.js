@@ -1,4 +1,5 @@
 // jshint esversion: 6
+// Hugo Moraes Dzin 8532186
 
 var canvas = {
     width: 800,
