@@ -12,7 +12,7 @@ svg {
     /* background-color: white; */
 }
 
-select option[disabled] {
+option[disabled] {
     display: none;
 }
 
@@ -26,9 +26,4 @@ select option[disabled] {
     fill: black;
     stroke: none;
     font-size: 0.75rem;
-}
-
-circle {
-    fill: steelblue;
-    r: 2.5;
 }

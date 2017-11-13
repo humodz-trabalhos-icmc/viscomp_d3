@@ -14,15 +14,47 @@
 
   <div align="center">
     <h4>Hugo Moraes Dzin - 8532186</h4>
-    <select name="x-axis">
-      <option value="" disabled selected>Eixo X</option>
-    </select>
-    <select name="y-axis">
-      <option value="" disabled selected>Eixo Y</option>
-    </select>
-    <input type="button" id="ok" value="OK">
-    <span id="message"></span>
-    <br>
+
+    <div>
+      <div>
+        Width: <input id="txtCanvasWidth" type="text" size="8">
+        Height: <input id="txtCanvasHeight" type="text" size="8">
+
+        <select class="selAxis" id="selX">
+          <option value="" disabled selected>X Axis</option>
+        </select>
+        <select class="selAxis" id="selY">
+          <option value="" disabled selected>Y Axis</option>
+        </select>
+        <input type="button" id="btnOk" value="OK">
+        <span id="message"></span>
+        <br>
+      </div>
+
+      <div>
+        <select id="selCountry">
+          <option value="ALL">SELECT ALL</option>
+        </select>
+
+        Color:
+        <select id="selColor"></select>
+
+        Opacity: <span id="txtOpacity"></span>
+        <input type="range"
+               id="rngOpacity"
+               min="0.0" max="1.0" step="0.01">
+
+        Radius: <span id="txtRadius"></span>
+        <input type="range"
+               id="rngRadius"
+               min="0.0" max="10" step="0.1">
+
+        <input type="button" id="btnReset" value="Reset Style">
+      </div>
+    </div>
+
+
+
     <div id="d3-container"></div>
   </div>
 

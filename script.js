@@ -2,9 +2,8 @@
 
 var canvas = {
     width: 800,
-    height: 600
+    height: 450
 };
-
 
 var margin = {
     top: 15,
@@ -16,15 +15,40 @@ var margin = {
 margin.topBottom = margin.top + margin.bottom;
 margin.leftRight = margin.left + margin.right;
 
-svg = d3.select('#d3-container').append('svg').attr({
-    width: canvas.width,
-    height: canvas.height
-});
+svg = d3.select('#d3-container')
+    .append('svg')
+    .attr('width', canvas.width)
+    .attr('height', canvas.height);
+
 
 
 var g = {};
 
+g.defaultCircleStyle = {
+    fill: 'steelblue',
+    opacity: 1,
+    r: 2.5
+};
+
+// Makes a copy
+g.circleStyle = Object.assign({}, g.defaultCircleStyle);
+g.chosenCountry = 'ALL';
+
 g.text_columns = ['Country', 'University_Name'];
+
+g.colors = [
+    ['Blue', 'steelblue'],
+    ['Red', 'Red',],
+    ['Green', 'Green'],
+    ['Yellow', 'gold'],
+    ['Purple', 'Purple'],
+    ['Brown', 'sienna'],
+    ['Gray', 'Gray'],
+    ['Black', 'Black'],
+];
+
+
+
 
 g.circlesGroup = svg.append('g');
 
@@ -38,39 +62,135 @@ g.yAxis = d3.svg.axis()
 
 g.xAxisSvg = svg
     .append('g')
-    .attr('class', 'axis')
-    .attr('transform', translate(0, canvas.height - margin.topBottom));
+    .attr('class', 'axis');
 
 g.yAxisSvg = svg
     .append('g')
-    .attr('class', 'axis')
-    .attr('transform', translate(margin.left, 0));
+    .attr('class', 'axis');
+
+
 
 
 d3.csv('TWUR 2016.csv', function(data) {
     g.data = preprocess(data);
     g.cols = Object.keys(g.data[0]);
 
+    var $txtCanvasWidth = $('#txtCanvasWidth');
+    var $txtCanvasHeight = $('#txtCanvasHeight');
 
-    // Add column names as options to <select> menus
-    $.each(g.cols, function(i, col) {
+    var $selAxis = $('.selAxis');
+    var $selCountry = $('#selCountry');
+    var $selColor = $('#selColor');
+
+    var $rngOpacity = $('#rngOpacity');
+    var $rngRadius = $('#rngRadius');
+
+    // List unique countries alphabetically
+    g.countries = Array.from(new Set(
+        data.map(row => row.Country))
+    ).sort();
+
+
+    // Fill select menus (x and y axes)
+    g.cols.forEach(function(col) {
         if(g.text_columns.indexOf(col) === -1) {
-            $('select').append($('<option>', {
+            $selAxis.append($('<option>', {
                 value: col,
                 text: col
             }));
         }
     });
 
-    $('input#ok').click(function() {
-        var xcol = $('select[name="x-axis"]').val();
-        var ycol = $('select[name="y-axis"]').val();
+    // Fill select menus (country)
+    g.countries.forEach(function(country) {
+        $selCountry.append($('<option>', {
+            value: country,
+            text: country
+        }));
+    });
+
+    // Fill color menus
+    g.colors.forEach(function(color) {
+        $selColor.append($('<option>', {
+            value: color[1],
+            text: color[0]
+        }));
+    });
+
+
+    $selCountry.change(function() {
+        g.chosenCountry = $(this).val();
+    });
+
+
+    $rngOpacity.change(function() {
+        var opacity= $(this).val();
+
+        g.circleStyle.opacity = opacity;
+        $('#txtOpacity').html(opacity);
+
+        getChosenPoints()
+            .style('opacity', opacity);
+    });
+
+
+    $rngRadius.change(function() {
+        var r = $(this).val();
+
+        g.circleStyle.r = r;
+        $('#txtRadius').html(r);
+
+        getChosenPoints()
+            .style('r', r);
+    });
+
+
+    $selColor.change(function() {
+        var fill = $(this).val();
+
+        g.circleStyle.fill = fill;
+
+        getChosenPoints()
+            .style('fill', fill);
+    });
+
+    // Set default values
+    $rngOpacity.val(g.defaultCircleStyle.opacity).change();
+    $rngRadius.val(g.defaultCircleStyle.r).change();
+
+    $txtCanvasWidth.val(canvas.width);
+    $txtCanvasHeight.val(canvas.height);
+
+
+    // Button that triggers axis change
+    $('#btnOk').click(function() {
+        var xcol = $('#selX').val();
+        var ycol = $('#selY').val();
+
+        canvas.width = +$txtCanvasWidth.val();
+        canvas.height = +$txtCanvasHeight.val();
+
+        if(isNaN(canvas.width + canvas.height)) {
+            $('#message').html('Invalid dimensions.');
+            return;
+        }
+
+        svg
+            .attr('width', canvas.width)
+            .attr('height', canvas.height);
 
         if(!xcol || !ycol) {
-            alert('Please choose both axes.');
+            $('#message').html('Select both X and Y axes.');
         } else {
-            doStuff(g.data, xcol, ycol);
+            updatePlot(g.data, xcol, ycol);
         }
+    });
+
+    $('#btnReset').click(function() {
+        g.circleStyle = Object.assign({}, g.defaultCircleStyle);
+
+        getChosenPoints()
+            .style(g.circleStyle);
     });
 });
 
@@ -95,11 +215,18 @@ function preprocess(data) {
                     row[key] = (low + high) / 2;
                 }
             } else if(g.text_columns.indexOf(key) === -1) {
-                // Convert only numeric columns
+                // Convert numeric columns
                 if(value !== '') {
                     row[key] = +value;
                 } else {
                     row[key] = NaN;
+                }
+            } else if(key === 'Country') {
+                // Fix typos in dataset
+                if(value == 'Unisted States of America') {
+                    row[key] = 'United States of America';
+                } else if(value == 'Unted Kingdom') {
+                    row[key] = 'United Kingdom';
                 }
             }
         }
@@ -110,7 +237,7 @@ function preprocess(data) {
 
 
 
-function doStuff(data, xcol, ycol) {
+function updatePlot(data, xcol, ycol) {
     var xIsNumber = typeof data[0][xcol] === 'number';
     var yIsNumber = typeof data[0][ycol] === 'number';
 
@@ -122,18 +249,17 @@ function doStuff(data, xcol, ycol) {
         return !xnan && !ynan;
     });
 
+    // Display how many NaNs were filtered
     var dropped = data.length - filtered_data.length;
-    $('#message').html('Dropped ' + dropped + ' missing values.');
+    $('#message').html('Ignored ' + dropped + ' missing values.');
 
-    // TODO ordinal
 
+    // Calculate domains based on selected columns
     var xDomain = getLinearDomain(filtered_data, xcol);
 
     var xScale = d3.scale.linear()
         .range([margin.left, canvas.width - margin.leftRight])
         .domain(xDomain);
-
-    // xScale = d3.scale.ordinal()
 
 
     var yDomain = getLinearDomain(filtered_data, ycol);
@@ -158,11 +284,22 @@ function doStuff(data, xcol, ycol) {
             .attr('cy', (row, index) => yScale(row[ycol]));
     }
 
-    updateAttr(circles.enter().append('circle'));
     updateAttr(circles.transition());
+    updateAttr(circles.enter()
+        .append('circle')
+        .style(g.circleStyle));
 
-    g.xAxisSvg.transition().call(g.xAxis);
-    g.yAxisSvg.transition().call(g.yAxis);
+    updateAxes();
+}
+
+
+function updateAxes() {
+    g.xAxisSvg.transition()
+        .attr('transform', translate(0, canvas.height - margin.topBottom))
+        .call(g.xAxis);
+    g.yAxisSvg.transition()
+        .attr('transform', translate(margin.left, 0))
+        .call(g.yAxis);
 }
 
 
@@ -212,8 +349,20 @@ function uniqueValuesByFrequency(data, col) {
 }
 
 
-
 function translate(w, h) {
     return 'translate(' + [w, h] + ')';
 }
 
+
+function getChosenPoints() {
+    return g.circlesGroup
+        .selectAll('circle')
+        .filter(countryFilter)
+        .transition();
+}
+
+
+function countryFilter(d) {
+    var aux = g.chosenCountry;
+    return aux === 'ALL' || d.Country === aux;
+}
