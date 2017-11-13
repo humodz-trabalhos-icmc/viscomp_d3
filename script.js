@@ -47,9 +47,6 @@ g.yAxisSvg = svg
     .attr('transform', translate(margin.left, 0));
 
 
-
-
-
 d3.csv('TWUR 2016.csv', function(data) {
     g.data = preprocess(data);
     g.cols = Object.keys(g.data[0]);
