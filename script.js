@@ -93,7 +93,7 @@ function preprocess(data) {
                 } else {
                     // X-Y range -> take mean
                     var low = +value.slice(0, i);
-                    var hight = +value.slice(i + 1);
+                    var high = +value.slice(i + 1);
 
                     row[key] = (low + high) / 2;
                 }
