@@ -1,0 +1,34 @@
+body {
+    background-color: silver;
+    font-family: sans-serif;
+}
+
+h4 {
+    margin: 0;
+    padding: 0;
+}
+
+svg {
+    background-color: white;
+}
+
+select option[disabled] {
+    display: none;
+}
+
+.axis {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    fill: black;
+    stroke: none;
+    font-size: 0.75rem;
+}
+
+circle {
+    fill: steelblue;
+    r: 2.5;
+}
