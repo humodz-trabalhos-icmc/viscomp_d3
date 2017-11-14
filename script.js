@@ -22,7 +22,7 @@ svg = d3.select('#d3-container')
     .attr('height', canvas.height);
 
 
-
+// Guardar as globais aqui
 var g = {};
 
 g.defaultCircleStyle = {
@@ -76,6 +76,7 @@ loadCsv('TWUR 2016.csv', function(data) {
     g.data = preprocess(data);
     g.cols = Object.keys(g.data[0]);
 
+    // Todo o trecho abaixo define o que cada botao da interface faz
     var $txtCanvasWidth = $('#txtCanvasWidth');
     var $txtCanvasHeight = $('#txtCanvasHeight');
 
@@ -121,10 +122,15 @@ loadCsv('TWUR 2016.csv', function(data) {
     });
 
 
+    // O valor da variavel eh lido na funcao countryFilter
     $selCountry.change(function() {
         g.chosenCountry = $(this).val();
     });
 
+
+    // Nos 3 blocos abaixo: ao mexer no input da interface,
+    // atualiza o valor global correspondente e manda os pontos
+    // atualizarem a aparencia tambem
 
     $rngOpacity.change(function() {
         var opacity= $(this).val();
@@ -185,12 +191,15 @@ loadCsv('TWUR 2016.csv', function(data) {
         if(!xcol || !ycol) {
             $message.html('Select both X and Y axes.');
         } else {
+            // Mostra o resto das opçoes, que estavam escondidas
             $('.hidden').removeClass('hidden');
+            // Desenha o grafico
             updatePlot(g.data, xcol, ycol);
         }
     });
 
     $('#btnReset').click(function() {
+        // Faz uma copia do objeto default
         g.circleStyle = Object.assign({}, g.defaultCircleStyle);
 
         getChosenPoints()
@@ -202,6 +211,9 @@ loadCsv('TWUR 2016.csv', function(data) {
 
 
 function preprocess(data) {
+    // Converte campos numericos pra numeros (inicialmente,
+    // todos os campos sao string), e corrige alguns campos
+    // que foram digitados errado.
     $.each(data, function(index, row) {
         row.id = index;
         for(var key in row) {
@@ -242,7 +254,7 @@ function preprocess(data) {
 }
 
 
-
+// Chamada quando os eixos do grafico sao alterados
 function updatePlot(data, xcol, ycol) {
     var xIsNumber = typeof data[0][xcol] === 'number';
     var yIsNumber = typeof data[0][ycol] === 'number';
@@ -314,6 +326,9 @@ function updateAxes() {
 }
 
 
+// Calcula os valores maximo e minimo na coluna para saber qual
+// deve ser o dominio. Tambem inclui um pouco de padding para o
+// zero nao ficar na interseccao dos eixos
 function getLinearDomain(data, col) {
     var min = data.reduce(function(answer, row) {
         if(row[col] < answer[col]) {
@@ -345,6 +360,7 @@ function translate(w, h) {
 }
 
 
+// Usado para alterar a aparencia dos pontos escolhidos
 function getChosenPoints() {
     return g.circlesGroup
         .selectAll('circle')
@@ -353,6 +369,10 @@ function getChosenPoints() {
 }
 
 
+// Chamado ao passar o mouse ou clicar num ponto
+// Mouse em cima: mostra o nome da univerdiade na interface
+// Mouse sai: mostra a universidade selecionada na interface
+// Clicar: seleciona o ponto com o mouse
 function mouseHandler(data, what) {
     var circle = $(d3.event.target);
 
@@ -378,6 +398,9 @@ function mouseHandler(data, what) {
 }
 
 
+// Funcao que diz que o elemento "d" esta selecionado ou nao
+// Leva em conta a inversao de selecao, o campo do dropdown de paises
+// e a selecao do mouse
 function countryFilter(d) {
     var shouldInvert = $('#chkInverted').prop('checked');
     var option = g.chosenCountry;
@@ -391,5 +414,12 @@ function countryFilter(d) {
         result = (d.Country === g.chosenCountry);
     }
 
-    return shouldInvert !== result;
+    if(shouldInvert) {
+        return !result;
+    } else {
+        return result;
+    }
+
+    // Mesmo de cima, so que menos legivel
+    // return shouldInvert !== result;
 }
